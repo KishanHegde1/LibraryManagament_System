@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Library System - Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/templates/stastic/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen">
+    <div class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between">
+        <div>
+            <div class="h-16 flex items-center justify-center bg-slate-950 border-b border-slate-800">
+                <h1 class="text-xl font-bold text-white"><i class="fa-solid fa-book-bookmark text-indigo-400 mr-2"></i>BiblioHub</h1>
+            </div>
+            <nav class="mt-6 px-4 space-y-2">
+                <a href="/index" class="flex items-center px-4 py-3 bg-indigo-600 text-white rounded-lg"><i class="fa-solid fa-chart-pie mr-3"></i> Overview Console</a>
+                <a href="/members" class="flex items-center px-4 py-3 hover:bg-slate-800 hover:text-white rounded-lg"><i class="fa-solid fa-users mr-3"></i> Members Directory</a>
+                <a href="/books" class="flex items-center px-4 py-3 hover:bg-slate-800 hover:text-white rounded-lg"><i class="fa-solid fa-book mr-3"></i> Catalog Books</a>
+                <a href="/borrow" class="flex items-center px-4 py-3 hover:bg-slate-800 hover:text-white rounded-lg"><i class="fa-solid fa-hand-holding-hand mr-3"></i> Issue Records</a>
+                <a href="/fines" class="flex items-center px-4 py-3 hover:bg-slate-800 hover:text-white rounded-lg"><i class="fa-solid fa-hand-holding-dollar mr-3"></i> Outstanding Fines</a>
+                <a href="/publisher" class="flex items-center px-4 py-3 hover:bg-slate-800 hover:text-white rounded-lg"><i class="fa-solid fa-user-tie mr-3"></i> Staff Directory</a>
+            </nav>
+        </div>
+    </div>
+    <div class="flex-1 p-8 overflow-y-auto">
+        <h2 class="text-2xl font-bold mb-6">Library Operational Base</h2>
+        <div class="bg-white p-6 rounded-xl shadow-xs border border-slate-200 max-w-xl">
+            <h3 class="text-slate-400 font-semibold uppercase text-xs tracking-wider">Welcome Back</h3>
+            <p class="text-slate-600 mt-2 text-sm leading-relaxed">
+                Utilize the control side navigation pane to execute real-time modifications over registered Library infrastructure collections seamlessly.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

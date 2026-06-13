@@ -1,0 +1,100 @@
+/* ==========================================================================
+   Library Management System Custom Stylesheet
+   ========================================================================== */
+
+/* 1. Global Page Smoothness & Defaults */
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* 2. Custom Scrollbar Styling (Webkit Browsers) */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9; /* slate-100 */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1; /* slate-300 */
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8; /* slate-400 */
+}
+
+/* 3. Smooth Transitions for Interactive Elements */
+a, button, tr, select, input {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 4. Table UI Enhancements */
+table {
+    border-spacing: 0;
+    width: 100%;
+}
+
+th {
+    white-space: nowrap;
+}
+
+/* Zebra striping data table rows for scanning long lists easily */
+tbody tr:nth-child(even) {
+    background-color: #f8fafc; /* slate-50 */
+}
+
+tbody tr:hover {
+    background-color: #f1f5f9 !important; /* slate-100 on hover */
+}
+
+/* 5. Custom UI Component Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.25s ease-out forwards;
+}
+
+/* 6. Form Input Elevation Focus States */
+input:focus, select:focus, textarea:focus {
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15); /* indigo-600 focus ring shadow halo */
+}
+
+/* 7. Print Media Optimization Layout Styles */
+@media print {
+    .w-64, header, button, a {
+        display: none !important; /* Hide sidebars, buttons, and headers when printing */
+    }
+    body, main, .max-w-6xl {
+        background: #fff !important;
+        color: #000 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    .bg-white {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    table {
+        border: 1px solid #cbd5e1 !important;
+    }
+}

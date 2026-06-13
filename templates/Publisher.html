@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Internal Staff Directory</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="/templates/stastic/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 p-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <a href="/index" class="text-indigo-600 hover:underline text-sm">&larr; Return to Workspace</a>
+                <h2 class="text-2xl font-bold mt-1">Staff Roster Directory</h2>
+            </div>
+            <button onclick="openFormModal()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow font-medium text-sm hover:bg-indigo-700">Add Staff Member</button>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-xs border border-slate-200 overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                        <th class="px-6 py-3.5 text-xs font-semibold uppercase text-slate-500">Staff Index ID</th>
+                        <th class="px-6 py-3.5 text-xs font-semibold uppercase text-slate-500">Official Name</th>
+                        <th class="px-6 py-3.5 text-xs font-semibold uppercase text-slate-500">Operation Role Assignment</th>
+                        <th class="px-6 py-3.5 text-xs font-semibold uppercase text-slate-500 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="staff-table-body" class="divide-y divide-slate-200 text-sm"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="formModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs hidden flex items-center justify-center z-50">
+        <div class="bg-white w-full max-w-md rounded-xl shadow-xl p-6">
+            <h3 id="modalTitle" class="text-lg font-bold mb-4">Onboard Staff Profile</h3>
+            <form id="recordForm" onsubmit="saveRecord(event)" class="space-y-4">
+                <div id="idFieldContainer">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Staff ID System Code</label>
+                    <input type="number" id="staff_id" class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-indigo-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Full Internal Employee Name</label>
+                    <input type="text" id="name" required class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-indigo-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Designated Professional Role</label>
+                    <input type="text" id="role" required class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-indigo-600">
+                </div>
+                <div class="pt-2 flex justify-end space-x-2">
+                    <button type="button" onclick="closeFormModal()" class="px-4 py-2 border rounded-lg text-sm text-slate-600">Dismiss</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium">Onboard Employee</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let isEditMode = false;
+
+        async function loadStaff() {
+            const response = await fetch('/api/staff');
+            const data = await response.json();
+            const tbody = document.getElementById('staff-table-body');
+            tbody.innerHTML = '';
+            data.forEach(row => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="px-6 py-4 font-semibold">#${row.staff_id}</td>
+                        <td class="px-6 py-4 font-medium text-slate-900">${row.name}</td>
+                        <td class="px-6 py-4 text-slate-600">${row.role}</td>
+                        <td class="px-6 py-4 text-right space-x-2">
+                            <button onclick="editRecord(${JSON.stringify(row).replace(/"/g, '&quot;')})" class="text-indigo-600 hover:underline text-xs font-semibold">Update</button>
+                            <button onclick="deleteRecord(${row.staff_id})" class="text-rose-600 hover:underline text-xs font-semibold">Delete</button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function openFormModal() {
+            isEditMode = false;
+            document.getElementById('recordForm').reset();
+            document.getElementById('idFieldContainer').classList.add('hidden');
+            document.getElementById('modalTitle').innerText = "Onboard New Employee Profile";
+            document.getElementById('formModal').classList.remove('hidden');
+        }
+
+        function closeFormModal() { document.getElementById('formModal').classList.add('hidden'); }
+
+        function editRecord(row) {
+            isEditMode = true;
+            document.getElementById('modalTitle').innerText = "Update Professional Profile Configuration";
+            document.getElementById('idFieldContainer').classList.remove('hidden');
+            document.getElementById('staff_id').value = row.staff_id;
+            document.getElementById('staff_id').disabled = true;
+            document.getElementById('name').value = row.name;
+            document.getElementById('role').value = row.role;
+            document.getElementById('formModal').classList.remove('hidden');
+        }
+
+        async function saveRecord(e) {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById('name').value,
+                role: document.getElementById('role').value
+            };
+            if (isEditMode) payload.staff_id = document.getElementById('staff_id').value;
+
+            await fetch('/api/staff', {
+                method: isEditMode ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            closeFormModal();
+            loadStaff();
+        }
+
+        async function deleteRecord(id) {
+            if (confirm("Offboard employee profile and clear credentials?")) {
+                await fetch(`/api/staff?id=${id}`, { method: 'DELETE' });
+                loadStaff();
+            }
+        }
+        window.onload = loadStaff;
+    </script>
+</body>
+</html>

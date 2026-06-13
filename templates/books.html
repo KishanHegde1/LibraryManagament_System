@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Books Catalog</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="/templates/stastic/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 p-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <a href="/index" class="text-indigo-600 hover:underline text-sm">&larr; Return to Workspace</a>
+                <h2 class="text-2xl font-bold mt-1">Book Catalog Registry</h2>
+            </div>
+            <button onclick="openFormModal()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow font-medium text-sm hover:bg-indigo-700">Add Title Item</button>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-xs border border-slate-200 overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                        <th class="px-6 py-3.5 text-xs font-semibold uppercase text-slate-500">System Code</th>
+                        <th class="px-6 py-3.5 text-xs font-semibold uppercase text-slate-500">Title Asset</th>
+                        <th class="px-6 py-3.5 text-xs font-semibold uppercase text-slate-500">Author Code Reference</th>
+                        <th class="px-6 py-3.5 text-xs font-semibold uppercase text-slate-500">Classification Category</th>
+                        <th class="px-6 py-3.5 text-xs font-semibold uppercase text-slate-500">Price Valuation</th>
+                        <th class="px-6 py-3.5 text-xs font-semibold uppercase text-slate-500">Status Availability</th>
+                        <th class="px-6 py-3.5 text-xs font-semibold uppercase text-slate-500 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="books-table-body" class="divide-y divide-slate-200 text-sm"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="formModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs hidden flex items-center justify-center z-50">
+        <div class="bg-white w-full max-w-md rounded-xl shadow-xl p-6">
+            <h3 id="modalTitle" class="text-lg font-bold mb-4">Catalog Book Title</h3>
+            <form id="recordForm" onsubmit="saveRecord(event)" class="space-y-4">
+                <div id="idFieldContainer">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Book ID</label>
+                    <input type="number" id="book_id" class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-indigo-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Literary Title</label>
+                    <input type="text" id="title" required class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-indigo-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Author System ID</label>
+                    <input type="number" id="author_id" required class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-indigo-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Subject Genre Category</label>
+                    <input type="text" id="category" required class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-indigo-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Price</label>
+                    <input type="number" step="0.01" id="price" required class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-indigo-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Status Allocation</label>
+                    <select id="availability" class="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-indigo-600">
+                        <option value="1">Available (In Stock)</option>
+                        <option value="0">Issued / Unavailable</option>
+                    </select>
+                </div>
+                <div class="pt-2 flex justify-end space-x-2">
+                    <button type="button" onclick="closeFormModal()" class="px-4 py-2 border rounded-lg text-sm text-slate-600">Dismiss</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium">Commit Payload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let isEditMode = false;
+
+        async function loadBooks() {
+            const response = await fetch('/api/books');
+            const data = await response.json();
+            const tbody = document.getElementById('books-table-body');
+            tbody.innerHTML = '';
+            data.forEach(row => {
+                const isAvail = row.availability == 1 || row.availability == true;
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="px-6 py-4 font-semibold">#${row.book_id}</td>
+                        <td class="px-6 py-4 font-medium text-slate-900">${row.title}</td>
+                        <td class="px-6 py-4">ID: ${row.author_id}</td>
+                        <td class="px-6 py-4">${row.category}</td>
+                        <td class="px-6 py-4">₹${row.price}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2.5 py-1 ${isAvail ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'} text-xs font-bold rounded-full">
+                                ${isAvail ? 'In Library' : 'Checked Out'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right space-x-2">
+                            <button onclick="editRecord(${JSON.stringify(row).replace(/"/g, '&quot;')})" class="text-indigo-600 hover:underline text-xs font-semibold">Update</button>
+                            <button onclick="deleteRecord(${row.book_id})" class="text-rose-600 hover:underline text-xs font-semibold">Delete</button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function openFormModal() {
+            isEditMode = false;
+            document.getElementById('recordForm').reset();
+            document.getElementById('idFieldContainer').classList.add('hidden');
+            document.getElementById('modalTitle').innerText = "Catalog New Book Volume";
+            document.getElementById('formModal').classList.remove('hidden');
+        }
+
+        function closeFormModal() { document.getElementById('formModal').classList.add('hidden'); }
+
+        function editRecord(row) {
+            isEditMode = true;
+            document.getElementById('modalTitle').innerText = "Modify Book Entry Configuration";
+            document.getElementById('idFieldContainer').classList.remove('hidden');
+            document.getElementById('book_id').value = row.book_id;
+            document.getElementById('book_id').disabled = true;
+            document.getElementById('title').value = row.title;
+            document.getElementById('author_id').value = row.author_id;
+            document.getElementById('category').value = row.category;
+            document.getElementById('price').value = row.price;
+            document.getElementById('availability').value = (row.availability == 1 || row.availability == true) ? "1" : "0";
+            document.getElementById('formModal').classList.remove('hidden');
+        }
+
+        async function saveRecord(e) {
+            e.preventDefault();
+            const payload = {
+                title: document.getElementById('title').value,
+                author_id: document.getElementById('author_id').value,
+                category: document.getElementById('category').value,
+                price: document.getElementById('price').value,
+                availability: parseInt(document.getElementById('availability').value)
+            };
+            if (isEditMode) payload.book_id = document.getElementById('book_id').value;
+
+            await fetch('/api/books', {
+                method: isEditMode ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            closeFormModal();
+            loadBooks();
+        }
+
+        async function deleteRecord(id) {
+            if (confirm("Purge catalog entry item?")) {
+                await fetch(`/api/books?id=${id}`, { method: 'DELETE' });
+                loadBooks();
+            }
+        }
+        window.onload = loadBooks;
+    </script>
+</body>
+</html>
